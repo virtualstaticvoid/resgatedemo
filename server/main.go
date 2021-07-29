@@ -1,8 +1,9 @@
 package main
 
 import (
-	"fmt"
+	"flag"
 	"github.com/jirenius/go-res"
+	"log"
 	"time"
 )
 
@@ -18,14 +19,15 @@ var model = &Model{
 
 func main() {
 
-	fmt.Println("Starting...")
+	var natsUrl string
+	flag.StringVar(&natsUrl, "nats", "nats://127.0.0.1:4222", "NATS Server URL")
+	flag.Parse()
 
 	s := res.NewService("example")
 
 	s.Handle("model",
 		res.Access(res.AccessGranted),
 		res.GetModel(func(r res.ModelRequest) {
-			fmt.Println("Request")
 			r.Model(model)
 		}),
 	)
@@ -37,15 +39,15 @@ func main() {
 				r.Event("tick", model)
 			})
 			if err != nil {
-				fmt.Printf("ERROR: %s\n", err)
-				break
+				log.Fatal(err)
 			}
 		}
 	}()
 
-	err := s.ListenAndServe("nats://nats:4222")
+	log.Printf("Connecting to %q\n", natsUrl)
+	err := s.ListenAndServe(natsUrl)
 	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
+		log.Fatal(err)
 	}
 
 }

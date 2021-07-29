@@ -13,6 +13,7 @@ services:
   backend-server:
     build:
       context: server
+    command: --nats nats://nats:4222
     networks:
       - res
     links:
@@ -30,7 +31,10 @@ services:
 
   website:
     image: nginx:1.21.1
+    networks:
+      - res
     volumes:
       - "./client:/usr/share/nginx/html:ro"
     labels:
       "dns.ldh/subdomain": "www.resgate"
+
