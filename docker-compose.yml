@@ -1,0 +1,36 @@
+---
+
+networks:
+  res: {}
+
+services:
+
+  nats:
+    image: nats:2.3.2
+    networks:
+      - res
+
+  backend-server:
+    build:
+      context: server
+    networks:
+      - res
+    links:
+      - nats
+
+  resgate:
+    image: resgateio/resgate:1.6.3
+    command: --nats nats://nats:4222
+    networks:
+      - res
+    labels:
+      "dns.ldh/subdomain": "api.resgate"
+    links:
+      - nats
+
+  website:
+    image: nginx:1.21.1
+    volumes:
+      - "./client:/usr/share/nginx/html:ro"
+    labels:
+      "dns.ldh/subdomain": "www.resgate"
