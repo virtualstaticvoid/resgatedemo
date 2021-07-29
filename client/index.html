@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Resgate Test Client</title>
+	<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/resclient@latest/dist/resclient.min.js"></script>
+</head>
+<body>
+
+	<pre id="output"></pre>
+
+	<script type="text/javascript">
+
+const ResClient = resclient.default;
+
+let client = new ResClient(location.protocol.replace("http", "ws") + '//' + document.domain.replace("www", "api") + ':8080');
+
+let onChange = function(model) {
+  let json = JSON.stringify(model, null, 2);
+  output.textContent = json;
+}
+
+client.get('example.model').then(model => {
+
+  let json = JSON.stringify(model, null, 2);
+  output.textContent = json;
+
+  model.on('tick', onChange);
+
+}).catch(err => {
+
+  output.textContent = err.message;
+
+});
+
+	</script>
+
+</body>
+</html>
